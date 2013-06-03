@@ -57,10 +57,14 @@ void demo() {
 	print();
 }
 
-int main() {
+void run() {
 	triangulation.make_grid(19, 6);
 	triangulation.make_it_smaller();
 	triangulation.make_it_smaller();
 	triangulation.write(stdout);
+}
+
+int main() {
+	demo();
 	return 0;
 }
