@@ -12,7 +12,7 @@ struct Matrix {
 
 	std::valarray<double> data;
 
-	Matrix(int _cols, int _rows) : cols(_cols), rows(_rows), data(rows * cols) {};
+	Matrix(int _cols, int _rows) : cols(_cols), rows(_rows), data(0.0, rows * cols) {};
 
 	double * p(int i, int j) {
 		return &data[ i * cols + j ];
