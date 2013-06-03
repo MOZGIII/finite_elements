@@ -62,7 +62,7 @@ struct Calculation : public Dumpable {
 		}
 	}
 
-	double get_f(Triangle * triangle) {
+	double get_force_vector(Triangle * triangle) {
 		Point c = triangle->center();
 		double a = triangle->area();
 		return -function->call( c.x, c.y ) * a / 3;
@@ -75,7 +75,7 @@ struct Calculation : public Dumpable {
 
 		for (auto &triangle : triangles) {
 			Matrix m = triangle->stiffness_matrix();
-			double f = get_f(triangle);
+			double f = get_force_vector(triangle);
 			
 			K.inc(triangle->p1->index, triangle->p1->index, m.get(0, 0));
 			K.inc(triangle->p1->index, triangle->p2->index, m.get(0, 1));
@@ -99,7 +99,7 @@ struct Calculation : public Dumpable {
 		int size = points.size();
 
 		for (n = 0; n < size; n++) {
-			if (points[n]->u != -1) {
+			if (points[n]->u != POINT_NO_VALUE) {
 
 				for ( i = 0; i < size; i++) {
 					if (i != n) K.set(n, i, 0);
