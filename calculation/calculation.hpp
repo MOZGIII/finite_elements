@@ -5,6 +5,7 @@
 #include <map>
 
 #include "function_definition.hpp"
+#include "boundary_conditions_definition.hpp"
 #include "matrix.hpp"
 #include "../geometry/extended_point.hpp"
 #include "../geometry/extended_triangle.hpp"
@@ -19,6 +20,7 @@ struct Calculation : public Dumpable {
 	ExtendedTrianglesList  triangles;
 
 	FunctionDefinition * function;
+	BoundaryConditionsDefinition * boundary_conditions;
 
 	Calculation(FunctionDefinition * _function) : function(_function) {};
 
@@ -62,10 +64,43 @@ struct Calculation : public Dumpable {
 		}
 	}
 
-	double get_force_vector(Triangle * triangle) {
+	void init_boundary_conditions(void) {
+		if(boundary_conditions) {
+			for(auto &point : points) {
+				point->u = boundary_conditions->fixed_value(point->x, point->y);
+			}
+		}
+	}
+
+	double get_function_value(Triangle * triangle) {
 		Point c = triangle->center();
 		double a = triangle->area();
-		return -function->call( c.x, c.y ) * a / 3;
+		return function->call( c.x, c.y ) * a / 3;
+	}
+
+	void add_boundary_conditions(Triangle * triangle, Matrix & load) {
+		if(boundary_conditions) {
+			load.inc(0, 0, boundary_conditions->stream(triangle->p1->x, triangle->p1->y));
+			load.inc(0, 1, boundary_conditions->stream(triangle->p2->x, triangle->p2->y));
+			load.inc(0, 2, boundary_conditions->stream(triangle->p3->x, triangle->p3->y));
+		}
+	}
+
+	Matrix get_load_vector(Triangle * triangle) {
+		double func = get_function_value(triangle);
+		Matrix load(1, 3);
+		load.set(0, 0, func);
+		load.set(0, 1, func);
+		load.set(0, 2, func);
+		add_boundary_conditions(triangle, load);
+
+		if(boundary_conditions) {
+			if(boundary_conditions->is_locked(triangle->p1->x, triangle->p1->y)) load.set(0, 0, 0);
+			if(boundary_conditions->is_locked(triangle->p2->x, triangle->p2->y)) load.set(0, 1, 0);
+			if(boundary_conditions->is_locked(triangle->p3->x, triangle->p3->y)) load.set(0, 2, 0);
+		}
+
+		return load;
 	}
 
 	Matrix & get_global_matrix(void) {
@@ -75,7 +110,7 @@ struct Calculation : public Dumpable {
 
 		for (auto &triangle : triangles) {
 			Matrix m = triangle->stiffness_matrix();
-			double f = get_force_vector(triangle);
+			Matrix l = get_load_vector(triangle);
 			
 			K.inc(triangle->p1->index, triangle->p1->index, m.get(0, 0));
 			K.inc(triangle->p1->index, triangle->p2->index, m.get(0, 1));
@@ -86,9 +121,9 @@ struct Calculation : public Dumpable {
 			K.inc(triangle->p3->index, triangle->p1->index, m.get(2, 0));
 			K.inc(triangle->p3->index, triangle->p2->index, m.get(2, 1));
 			K.inc(triangle->p3->index, triangle->p3->index, m.get(2, 2));
-			K.inc(triangle->p1->index, size, f);
-			K.inc(triangle->p2->index, size, f);
-			K.inc(triangle->p3->index, size, f);
+			K.inc(triangle->p1->index, size, l.get(0, 0));
+			K.inc(triangle->p2->index, size, l.get(0, 1));
+			K.inc(triangle->p3->index, size, l.get(0, 2));
 		}
 		return K;
 	}
@@ -99,7 +134,7 @@ struct Calculation : public Dumpable {
 		int size = points.size();
 
 		for (n = 0; n < size; n++) {
-			if (points[n]->u != POINT_NO_VALUE) {
+			if (boundary_conditions && boundary_conditions->is_locked(points[n]->x, points[n]->y)) {
 
 				for ( i = 0; i < size; i++) {
 					if (i != n) K.set(n, i, 0);

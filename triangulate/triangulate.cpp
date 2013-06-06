@@ -10,7 +10,7 @@
 #include "triangulation/triangulation.hpp"
 
 struct Task : public FigureDefinition {
-	int parameter(double x, double y) {
+	bool parameter(double x, double y) {
 		return !(  9 - y < x - 3  );
 	}
 };

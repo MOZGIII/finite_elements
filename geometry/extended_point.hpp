@@ -3,7 +3,7 @@
 
 #include "point.hpp"
 
-#define POINT_NO_VALUE (-1)
+#define POINT_NO_VALUE (0)
 
 struct ExtendedPoint : public Point {
 	double u;

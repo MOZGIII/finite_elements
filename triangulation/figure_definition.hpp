@@ -6,7 +6,7 @@
 struct FigureDefinition {
 	
 	// Return 1 where the point should be and 0 where it should not be. EZ.
-	virtual int parameter(double x, double y) = 0;
+	virtual bool parameter(double x, double y) = 0;
 };
 
 #endif

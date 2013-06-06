@@ -41,8 +41,8 @@ struct Triangulation : public Dumpable {
 
 	int check_triangle(const Point *p1, const Point *p2, const Point *p3) {
 		return p1 && p2 && p3 &&
-				definition->parameter((p1->x + p3->x)/2, (p1->y + p2->y)/2 + (p1->y - p2->y)/4) &&
-				definition->parameter((p1->x + p3->x)/2 + (p1->x - p3->x)/4, (p1->y + p2->y)/2);
+				definition->parameter(p1->x/4 + p2->x/4 + p3->x/2, p1->y/4 + p2->y/4 + p3->y/2) &&
+        		definition->parameter(p1->x/4 + p3->x/4 + p2->x/2, p1->y/4 + p3->y/4 + p2->y/2);
 	}
 
 	int make_triangle(Point *p1, Point *p2, Point *p3, bool force = false) {
@@ -70,8 +70,8 @@ struct Triangulation : public Dumpable {
 					make_triangle(points[i][j + 1],     points[i][j],         points[i + 1][j + 1]) +
 					make_triangle(points[i + 1][j],     points[i + 1][j + 1], points[i][j]        )
 				) || (
-					make_triangle(points[i][j],         points[i][j + 1],     points[i + 1][j]    ) +
-					make_triangle(points[i + 1][j + 1], points[i + 1][j],     points[i][j + 1]    )
+					make_triangle(points[i][j],         points[i + 1][j],     points[i][j + 1]    ) +
+					make_triangle(points[i + 1][j + 1], points[i][j + 1],     points[i + 1][j]    )
 				);
 			}
 		}
