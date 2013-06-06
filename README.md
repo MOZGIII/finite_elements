@@ -11,6 +11,6 @@
 ## Build
 
 ```bash
-$ cd calculate
+$ cd examples/calculate
 $ make
 ```
