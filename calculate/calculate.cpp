@@ -12,7 +12,8 @@
 
 struct HUI : public FigureDefinition {
 	int parameter(double x, double y) {
-		//return !(y > x + 3 || y > 12 - x || (y > 2 && y < 4 && y < x && y < 9 - x));
+		return !(  9 - y < x - 3  );
+
 		return
 		(y<=1 && ((y<=x && y>=x-2) || (y>=4-x && y<=6-x))) ||
 		(y>=1 && y<=2 && (y<=x && y<=6-x)) ||
@@ -42,8 +43,9 @@ struct Func : public FunctionDefinition {
 
 	double T1 = 20, A = 1.5, alpha = 2.5, beta = 6;
 	double call(double x, double y) {
-		return A * exp( -beta  ) *  cos( sqrt(x*x+y*y ));
+		// return A * exp( -beta  ) *  cos( sqrt(x*x+y*y ));
 		//return A*sin(x*y);
+		return x;
 	}
 
 };
@@ -56,7 +58,7 @@ void print(void) {
 	FILE *gmain;
 
 	gmain = fopen("main", "w");
-	fprintf(gmain, "splot 'data' with lines palette\npause mouse close\n");
+	fprintf(gmain, "set key off\nset view map\nsplot 'data' with lines palette\npause mouse close\n");
 	fclose(gmain);
 
 	calculation.dump("data");
@@ -67,13 +69,14 @@ void print(void) {
 }
 
 int main() {
-	triangulation.make_grid(19, 6);
+	triangulation.make_grid(10, 10);
 	triangulation.make_it_smaller();
-	// triangulation.make_it_smaller();
+	triangulation.make_it_smaller();
+
 
 	calculation.import(&triangulation);
+	// print();
 	calculation.calculate();
-
 	print();
 
 	return 0;
