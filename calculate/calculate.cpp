@@ -23,10 +23,8 @@ Triangulation triangulation(&task);
 struct Func : public FunctionDefinition {
 
 	double call(double x, double y) {
-		double T1 = 20, A = 1.5, alpha = 2.5, beta = 6;
-		return A * exp( -beta  ) *  cos( sqrt(x*x+y*y ));
-		// return A*sin(x*y);
-		return x;
+		double A = 1.5, alpha = 0.15, beta = 1;
+		return A * exp( -alpha * x ) *  cos( beta * x );
 	}
 
 };
@@ -35,14 +33,32 @@ struct Func : public FunctionDefinition {
 struct Bounds : public BoundaryConditionsDefinition {
 
 	double stream(double x, double y) {
-		return 1;
+		if(x == 0) // g2
+			return 0.15; // p1
+
+		if (x == 9) // g4
+			return -0.1; // p2
+
+		return 0;
 	}
 
 	double fixed_value(double x, double y) {
+		if(y == 0) // g1
+			return 2; // u1
+
+		if(y == 9 || (9 - y == x - 3)) // g3
+			return 1.5; // u2
+
 		return 0;
 	}
 	
 	bool is_locked(double x, double y) {
+		if(y == 0) // g1
+			return true;
+
+		if(y == 9 || (9 - y == x - 3)) // g3
+			return true;
+
 		return false;
 	}
 
@@ -56,7 +72,7 @@ void print(void) {
 	FILE *gmain;
 
 	gmain = fopen("main", "w");
-	fprintf(gmain, "set key off\nsplot 'data' with lines palette\npause mouse close\n");
+	fprintf(gmain, "set terminal wxt size 600,600\nset key off\nsplot 'data' with lines palette\npause mouse close\n");
 	fclose(gmain);
 
 	calculation.dump("data");
@@ -68,8 +84,8 @@ void print(void) {
 
 int main() {
 	triangulation.make_grid(10, 10);
-	triangulation.make_it_smaller();
-	// triangulation.make_it_smaller();
+	// for(int i = 3; i > 0; i--)
+		triangulation.make_it_smaller();
 
 	calculation.boundary_conditions = &bounds;
 	calculation.import(&triangulation);

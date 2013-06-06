@@ -23,7 +23,7 @@ void print(void) {
 	FILE *gmain;
 
 	gmain = fopen("main", "w");
-	fprintf(gmain, "set key off\nplot 'data' with lines\npause mouse close\n");
+	fprintf(gmain, "set terminal wxt size 600,600\nset key off\nplot 'data' with lines\npause mouse close\n");
 	fclose(gmain);
 
 	triangulation.dump("data");
