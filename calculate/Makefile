@@ -1,4 +1,4 @@
 all: build
 
 build:
-	g++ -I.. -std=c++11 -Wall calculate.cpp -o calculate
+	g++ -I.. -std=c++0x -Wall calculate.cpp -o calculate

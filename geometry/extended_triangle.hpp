@@ -6,13 +6,13 @@
 #include "../calculation/matrix.hpp"
 
 struct ExtendedTriangle : public Triangle {
-	int index = -1;
+	int index;
 
 	ExtendedPoint *p1;
 	ExtendedPoint *p2;
 	ExtendedPoint *p3;
 
-	ExtendedTriangle(ExtendedPoint * _p1, ExtendedPoint * _p2, ExtendedPoint * _p3) : Triangle(_p1, _p2, _p3), p1(_p1), p2(_p2), p3(_p3) {};
+	ExtendedTriangle(ExtendedPoint * _p1, ExtendedPoint * _p2, ExtendedPoint * _p3) : Triangle(_p1, _p2, _p3), index(-1), p1(_p1), p2(_p2), p3(_p3) {};
 
 	Matrix stiffness_matrix(void) {
 		double a = area();

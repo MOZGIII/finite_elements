@@ -1,27 +1,23 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include <unistd.h>
+
 #include "geometry/point.hpp"
 #include "geometry/triangle.hpp"
 
 #include "triangulation/figure_definition.hpp"
 #include "triangulation/triangulation.hpp"
 
-struct HUI : public FigureDefinition {
+struct Task : public FigureDefinition {
 	int parameter(double x, double y) {
-		return
-		
-		!(  9 - y < x - 3  )
-
-		;
+		return !(  9 - y < x - 3  );
 	}
 };
 
 
-HUI hui;
-
-// Triangulacia nahui
-Triangulation triangulation(&hui);
+Task task;
+Triangulation triangulation(&task);
 
 void print(void) {
 	FILE *gmain;
