@@ -2,7 +2,7 @@
 
 ## Requirements
 
--  C++11-compatible compiler is required.
+-  C++0x-compatible compiler is required.
 
    For Windows use [MinGW-builds](http://sourceforge.net/projects/mingwbuilds/).
 
