@@ -49,17 +49,23 @@ struct Task : public FigureDefinition, public BoundaryConditionsDefinition, publ
 
 void print(Dumpable * d, const char * filename) {
 	FILE *gmain;
+	int gnuplot_padding_x, gnuplot_padding_y;
 	bool is3d = typeid(Triangulation) != typeid(*d);
 
 	const char * drawproc;
 	if(is3d) {
-		drawproc = "set view map\nsplot 'data' with lines palette\n";
-	} else{
-		drawproc = "plot 'data' with lines\n";
+		gnuplot_padding_x = 77+76;
+		gnuplot_padding_y = 78+97;
+		drawproc = "set view map\nsplot 'data' with lines palette lw 2.5\n";
+	} else {
+		gnuplot_padding_x = 55;
+		gnuplot_padding_y = 40;
+		drawproc = "unset ytics\nunset xtics\nplot 'data' with lines lw 1\n";
 	}
 
 	gmain = fopen("main", "w");
-	fprintf(gmain, "set terminal png size %d,%d\nset output \"%s\"\nset key off\n%s", 50 * task.x_max, 50 * task.y_max, filename, drawproc);
+	fprintf(gmain, "set terminal png size %d,%d\nset output \"%s\"\nset key off\n%s", 
+		50 * task.x_max + gnuplot_padding_x, 50 * task.y_max + gnuplot_padding_y, filename, drawproc);
 	fclose(gmain);
 
 	d->dump("data");
