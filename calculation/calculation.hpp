@@ -129,23 +129,19 @@ struct Calculation : public Dumpable {
 	}
 
 	void transform_global_matrix(Matrix &K) {
+		if(!boundary_conditions)
+			return;
+
 		int size = points.size();
 
 		for(int n = 0; n < size; n++) {
-			if (boundary_conditions && boundary_conditions->is_locked(points[n]->x, points[n]->y)) {
-
+			if(boundary_conditions->is_locked(points[n]->x, points[n]->y)) {
 				for(int i = 0; i < size; i++) {
-					if (i != n) K.set(n, i, 0);
+					if(i != n) K.set(n, i, 0);
 				}
 
-				K.set(n, size, K.get(n, n) * points[n]->u);
-
-				for(int i = 0; i < size; i++) {
-					if (i != n) {
-						K.dec(i, size, K.get(i, n) * points[n]->u);
-						K.set(i, n, 0);
-					}
-				}
+				K.set(n, n, 1);
+				K.set(n, size, points[n]->u);
 			}
 		}
 	}
