@@ -1,37 +1,19 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include "geometry/extended_point.hpp"
-#include "geometry/extended_triangle.hpp"
-
-#include "triangulation/figure_definition.hpp"
 #include "triangulation/triangulation.hpp"
-
-#include "calculation/matrix.hpp"
 #include "calculation/calculation.hpp"
 
-struct Task : public FigureDefinition {
+struct Task : public FigureDefinition, public BoundaryConditionsDefinition, public FunctionDefinition {
+	int x_max = 9;
+	int y_max = 9;
+
+	// Figure definition
 	bool parameter(double x, double y) {
 		return !(  9 - y < x - 3  );
 	}
-};
 
-Task task;
-Triangulation triangulation(&task);
-
-
-struct Func : public FunctionDefinition {
-
-	double call(double x, double y) {
-		double A = 1.5, alpha = 0.15, beta = 1;
-		return A * exp( -alpha * x ) *  cos( beta * x );
-	}
-
-};
-
-
-struct Bounds : public BoundaryConditionsDefinition {
-
+	// Boundary conditions
 	double stream(double x, double y) {
 		if(x == 0) // g2
 			return 0.15; // p1
@@ -53,20 +35,20 @@ struct Bounds : public BoundaryConditionsDefinition {
 	}
 	
 	bool is_locked(double x, double y) {
-		if(y == 0) // g1
-			return true;
-
-		if(y == 9 || (9 - y == x - 3)) // g3
-			return true;
-
-		return false;
+		// Lock if non-zero initially
+		return fixed_value(x, y) != 0;
 	}
 
-};
+	// Function definition
+	double call(double x, double y) {
+		double A = 1.5, alpha = 0.15, beta = 1;
+		return A * exp( -alpha * x ) *  cos( beta * x );
+	}
 
-Func func;
-Bounds bounds;
-Calculation calculation(&func);
+} task;
+
+Triangulation triangulation(&task);
+Calculation calculation(&task);
 
 void print(void) {
 	FILE *gmain;
@@ -83,11 +65,10 @@ void print(void) {
 }
 
 int main() {
-	triangulation.make_grid(10, 10);
-	// for(int i = 3; i > 0; i--)
-		triangulation.make_it_smaller();
+	triangulation.make_grid(task.x_max + 1, task.y_max + 1);
+	triangulation.make_it_smaller();
 
-	calculation.boundary_conditions = &bounds;
+	calculation.boundary_conditions = &task;
 	calculation.import(&triangulation);
 	calculation.init_boundary_conditions();
 	// print();

@@ -4,7 +4,7 @@
 #include "triangulation/triangulation.hpp"
 #include "calculation/calculation.hpp"
 
-struct Task : public FigureDefinition, public BoundaryConditionsDefinition {
+struct Task : public FigureDefinition, public BoundaryConditionsDefinition, public FunctionDefinition {
 	int x_max = 9;
 	int y_max = 9;
 
@@ -35,25 +35,17 @@ struct Task : public FigureDefinition, public BoundaryConditionsDefinition {
 	}
 	
 	bool is_locked(double x, double y) {
-		if(y == 0) // g1
-			return true;
-
-		if(y == 9 || (9 - y == x - 3)) // g3
-			return true;
-
-		return false;
+		// Lock if non-zero initially
+		return fixed_value(x, y) != 0;
 	}
 
-} task;
-
-struct Func : public FunctionDefinition {
-
+	// Function definition
 	double call(double x, double y) {
 		double A = 1.5, alpha = 0.15, beta = 1;
 		return A * exp( -alpha * x ) *  cos( beta * x );
 	}
 
-} func;
+} task;
 
 void print(Dumpable * d, const char * filename) {
 	FILE *gmain;
@@ -78,7 +70,7 @@ void print(Dumpable * d, const char * filename) {
 }
 
 void calculate_and_print(Triangulation &t, const char * filename) {
-	Calculation calculation(&func);
+	Calculation calculation(&task);
 	calculation.boundary_conditions = &task;
 	calculation.import(&t);
 	calculation.init_boundary_conditions();
