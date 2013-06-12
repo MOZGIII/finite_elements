@@ -108,7 +108,7 @@ struct Calculation : public Dumpable {
 
 		Matrix &K = *( new Matrix(size+1, size) );
 
-		for (auto &triangle : triangles) {
+		for(auto &triangle : triangles) {
 			Matrix m = triangle->stiffness_matrix();
 			Matrix l = get_load_vector(triangle);
 			
@@ -129,63 +129,59 @@ struct Calculation : public Dumpable {
 	}
 
 	void transform_global_matrix(Matrix &K) {
-		int i, n;
-
 		int size = points.size();
 
-		for (n = 0; n < size; n++) {
+		for(int n = 0; n < size; n++) {
 			if (boundary_conditions && boundary_conditions->is_locked(points[n]->x, points[n]->y)) {
 
-				for ( i = 0; i < size; i++) {
+				for(int i = 0; i < size; i++) {
 					if (i != n) K.set(n, i, 0);
 				}
 
 				K.set(n, size, K.get(n, n) * points[n]->u);
 
-				for (i = 0; i < size; i++) {
+				for(int i = 0; i < size; i++) {
 					if (i != n) {
 						K.dec(i, size, K.get(i, n) * points[n]->u);
 						K.set(i, n, 0);
 					}
 				}
-
 			}
 		}
 	}
 
 	void gauss(Matrix &K) {
-		double k_ii_i, k_i_i;
-		int i, j, ii, jj;
-		
-		int n_nodes = points.size();
+		int size = points.size();
 
-		for ( i = 0; i < n_nodes; i++) {
-			k_i_i = K.get(i, i);
-			for ( j = 0; j < n_nodes + 1; j++) {
+		for(int i = 0; i < size; i++) {
+			double k_i_i = K.get(i, i);
+
+			for(int j = 0; j < size + 1; j++) {
 				K.set(i, j, K.get(i, j) / k_i_i);
 			}
 
-			for ( ii = i + 1; ii < n_nodes; ii++) {
+			for(int ii = i + 1; ii < size; ii++) {
 				if (K.get(ii, i) != 0) {
-					k_ii_i = K.get(ii, i);
-					for ( jj = i; jj < n_nodes + 1; jj++) {
+					double k_ii_i = K.get(ii, i);
+
+					for(int jj = i; jj < size + 1; jj++) {
 						K.dec(ii, jj, k_ii_i * K.get(i, jj));
 					}
 				}
 			}
 		}
 
-		for ( i = n_nodes - 1; i >= 0; i--) {
-			for ( ii = i - 1; ii >= 0; ii--) {
-				k_ii_i = K.get(ii, i);
-				for ( jj = i; jj < n_nodes + 1; jj++) {
+		for(int i = size - 1; i >= 0; i--) {
+			for(int ii = i - 1; ii >= 0; ii--) {
+				double k_ii_i = K.get(ii, i);
+				for(int jj = i; jj < size + 1; jj++) {
 					K.dec(ii, jj, K.get(i, jj) * k_ii_i);
 				}
 			}
 		}
 
-		for ( i = 0; i < n_nodes; i++) {
-			points[i]->u = K.get(i, n_nodes);
+		for(int i = 0; i < size; i++) {
+			points[i]->u = K.get(i, size);
 		}
 	}
 
