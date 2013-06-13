@@ -5,8 +5,13 @@
 #include "calculation/calculation.hpp"
 
 struct Task : public FigureDefinition, public BoundaryConditionsDefinition, public FunctionDefinition {
-	int x_max = 9;
-	int y_max = 9;
+	int x_max;
+	int y_max;
+	
+	Task(void) {
+		x_max = 9;
+		y_max = 9;
+	}
 
 	// Figure definition
 	bool parameter(double x, double y) {
