@@ -30,8 +30,20 @@ struct Triangulation : public Dumpable {
 		}
 	}
 
-	Point *make_point(double x, double y) {
-		Point *point;
+	Point * find_point(double x, double y) {
+		for(auto &point : points){
+			if(point->x == x && point->y == y)
+				return point;
+		}
+		return NULL;
+	}
+
+	Point * make_point(double x, double y) {
+		Point * point;
+		
+		point = find_point(x, y);
+		if(point) return point;
+
 		if (definition->parameter(x, y)) {
 			point = new Point(x, y);
 			points.push_back(point);
